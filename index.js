@@ -23,10 +23,24 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    const database = client.db("assignmentDB");
+    const topSellingCollection = database.collection("products");
 
 //for home page 6 top-selling Food Items
-app.get('/products', (req, res)=>{
+//http://localhost:5000/api/v1/top-selling?sortField=price&sortOrder=desc
+app.get('/api/v1/top-selling', async(req, res)=>{
+ 
+  let sortObj = {}
+  const sortField = req.query.sortField;
+  const sortOrder = req.query.sortOrder;
+  if(sortField && sortOrder){
+    sortObj[sortField] = sortOrder
+  }
+  console.log(sortObj)
+  const cursor =await topSellingCollection.find().sort(sortObj).limit(6).toArray()
+  res.send(cursor)
   
+   
 })
 
 
