@@ -13,7 +13,16 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "safi-miazi",
   "license": "ISC",
-  "description": ""
+  "description": "my mistake",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Porgramming-Hero-web-course/b8a11-server-side-safimiazi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Porgramming-Hero-web-course/b8a11-server-side-safimiazi/issues"
+  },
+  "homepage": "https://github.com/Porgramming-Hero-web-course/b8a11-server-side-safimiazi#readme"
 }
