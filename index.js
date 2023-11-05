@@ -3,7 +3,7 @@ const app = express()
 var cors = require('cors')
 require('dotenv').config()
 const port = process.env.PORT || 5000
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 app.use(cors())
 app.use(express.json())
@@ -26,21 +26,52 @@ async function run() {
     const database = client.db("assignmentDB");
     const topSellingCollection = database.collection("products");
 
+
+
 //for home page 6 top-selling Food Items
 //http://localhost:5000/api/v1/top-selling?sortField=price&sortOrder=desc
-app.get('/api/v1/top-selling', async(req, res)=>{
- 
-  let sortObj = {}
-  const sortField = req.query.sortField;
-  const sortOrder = req.query.sortOrder;
-  if(sortField && sortOrder){
-    sortObj[sortField] = sortOrder
+app.get('/api/v1/top-selling', async (req, res) => {
+  try {
+    let sortObj = {};
+    const sortField = req.query.sortField;
+    const sortOrder = req.query.sortOrder;
+
+    if (sortField && sortOrder) {
+      sortObj[sortField] = sortOrder;
+    }
+
+    const cursor = await topSellingCollection.find().sort(sortObj).limit(6).toArray();
+
+    res.send(cursor);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
   }
-  console.log(sortObj)
-  const cursor =await topSellingCollection.find().sort(sortObj).limit(6).toArray()
+});
+
+// for all product api(20)
+app.get('/api/v1/items', async(req,res)=>{
+  console.log("pagination",req.query);
+  const page = parseInt(req.query.page);
+  const size = parseInt(req.query.size);
+  const cursor = await topSellingCollection.find()
+  .skip(page*size)
+  .limit(size)
+  .toArray()
   res.send(cursor)
-  
-   
+})
+
+app.get('/api/v1/items/:id', async(req,res)=>{
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id)}
+  const result = await topSellingCollection.findOne(query)
+  res.send(result)
+})
+
+app.get('/api/v1/productsCount', async(req,res)=>{
+  const count = await topSellingCollection.estimatedDocumentCount()
+  console.log(count);
+  res.send({count})
 })
 
 
