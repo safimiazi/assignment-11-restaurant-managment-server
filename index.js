@@ -89,10 +89,26 @@ app.post('/api/v1/cart', async(req,res)=>{
   const product = req.body;
   console.log(product)
   const result = await cartCollection.insertOne(product)
+  res.send(result)
 })
 
 
-
+app.put('/api/v1/update-count/:id', async (req, res) => {
+  const body = req.body;
+  const id = req.params.id;
+  const Count = body.Count;
+   const newCount = parseInt(Count)
+   console.log(typeof newCount);
+   const options = { upsert: true };
+  const query = { _id: new ObjectId(id) };
+  const update = {
+    $inc: {
+      Count: 1
+    }
+  };
+    const result = await topSellingCollection.updateOne(query, update, options);
+    console.log(result);
+});
 
 
 
