@@ -25,10 +25,19 @@ async function run() {
     await client.connect();
     const database = client.db("assignmentDB");
     const topSellingCollection = database.collection("products");
+    const cartCollection = database.collection("cart");
 
 
 
 //for home page 6 top-selling Food Items
+app.post('/api/v1/post-items', async(req,res)=>{
+  const product = req.body;
+  const result = await topSellingCollection.insertOne(product)
+  res.send(result)
+})
+
+
+
 //http://localhost:5000/api/v1/top-selling?sortField=price&sortOrder=desc
 app.get('/api/v1/top-selling', async (req, res) => {
   try {
@@ -75,7 +84,12 @@ app.get('/api/v1/productsCount', async(req,res)=>{
 })
 
 
-
+//for cart
+app.post('/api/v1/cart', async(req,res)=>{
+  const product = req.body;
+  console.log(product)
+  const result = await cartCollection.insertOne(product)
+})
 
 
 
