@@ -16,6 +16,35 @@ app.use(cors({
   credentials: true
 }))
 app.use(express.json())
+app.use(cookieParser())
+
+const logger = (req, res, next)=> {
+  console.log(req.method, req.url);
+  next()
+}
+const verifyToken = async(req,res, next)=> {
+  const token = req.cookies?.token;
+  if(!token){
+    return res.status(401).send({message: 'not authorized'})
+  }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET,(err, decoded)=>{
+    if(err){
+      console.log(err);
+      return res.status(401).send({message: 'unauthorized'})
+    }
+    //if token is valid then it would be decoded
+    console.log('value in the token', decoded);
+    res.user = decoded
+    next()
+  } )
+ 
+}
+
+
+
+
+
+
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.uinjrty.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -62,6 +91,10 @@ app.post('/api/v1/post-items', async(req,res)=>{
 
 app.get('/api/v1/get-added-food', async(req,res)=>{
   const email = req.query.email;
+  if(req.query.email !== req.user.email){
+    return res.status(403).send({message: 'forbidden access'})
+  }
+
   const cursor = await topSellingCollection.find({ Email: email }).toArray();
   res.send(cursor)
 })
