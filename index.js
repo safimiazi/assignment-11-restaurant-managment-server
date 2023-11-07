@@ -128,6 +128,20 @@ app.post('/api/v1/cart', async(req,res)=>{
   res.send(result)
 })
 
+//get all cart items
+app.get('/api/v1/cart', async(req,res)=>{
+  const cursor = await cartCollection.find().toArray()
+  res.send(cursor)
+})
+
+//delete cart
+app.delete('/api/v1/cart/:id',async(req,res)=>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  const result = await cartCollection.deleteOne(query);
+  res.send(result)
+})
+
 
 app.put('/api/v1/update-count/:id', async (req, res) => {
   const body = req.body;
