@@ -1,11 +1,18 @@
 const express = require('express')
 const app = express()
+var jwt = require('jsonwebtoken');
 var cors = require('cors')
 require('dotenv').config()
 const port = process.env.PORT || 5000
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
-app.use(cors())
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    
+  ],
+  credentials: true
+}))
 app.use(express.json())
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.uinjrty.mongodb.net/?retryWrites=true&w=majority`;
@@ -26,8 +33,23 @@ async function run() {
     const database = client.db("assignmentDB");
     const topSellingCollection = database.collection("products");
     const cartCollection = database.collection("cart");
+//auth related api
+app.post('/api/v1/jwt', async(req,res)=>{
+  const user = req.body;
+  console.log(user);
+  const token = jwt.sign(user, process.env.TOKEN, {expiresIn: '1h'})
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none'
+  })
+  res.send({success: true})
+})
 
-
+app.post('/api/v1/logout', async(req,res)=>{
+  const user = req.body;
+  res.clearCookie('token', {maxAge: 0}).send({success: true})
+})
 
 //for home page 6 top-selling Food Items
 app.post('/api/v1/post-items', async(req,res)=>{
