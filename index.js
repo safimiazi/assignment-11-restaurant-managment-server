@@ -36,6 +36,42 @@ app.post('/api/v1/post-items', async(req,res)=>{
   res.send(result)
 })
 
+app.get('/api/v1/get-added-food', async(req,res)=>{
+  const email = req.query.email;
+  const cursor = await topSellingCollection.find({ Email: email }).toArray();
+  res.send(cursor)
+})
+
+//for get update data:
+app.get('/api/v1/products/:id', async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await topSellingCollection.findOne(query);
+  res.send(result)
+})
+
+// update operation
+app.patch('/api/v1/products/:id',async(req,res)=>{
+  const updateProduct = req.body;
+  const id = req.params.id
+  console.log(updateProduct);
+  const filter = {_id: new ObjectId(id)};
+  const updateDoc = {
+    $set: {
+      Country: updateProduct.Country,
+      FoodCategory: updateProduct.FoodCategory,
+      FoodImage: updateProduct.FoodImage,
+      FoodName: updateProduct.FoodName,
+      Quantity: updateProduct.Quantity,
+      Price:  updateProduct.Price,
+      ShortDescription: updateProduct.ShortDescription,
+      LongDescription: updateProduct.LongDescription
+    }
+  }
+  const result = await topSellingCollection.updateOne(filter,updateDoc)
+  res.send(result)
+})
+
 
 
 //http://localhost:5000/api/v1/top-selling?sortField=price&sortOrder=desc
