@@ -11,6 +11,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 app.use(cors({
   origin: [
     'http://localhost:5173',
+    'https://assignment-11-6268f.web.app'
     
   ],
   credentials: true
@@ -18,10 +19,7 @@ app.use(cors({
 app.use(express.json())
 app.use(cookieParser())
 
-const logger = (req, res, next)=> {
-  console.log(req.method, req.url);
-  next()
-}
+
 const verifyToken = async(req,res, next)=> {
   const token = req.cookies?.token;
   if(!token){
@@ -71,8 +69,8 @@ app.post('/api/v1/jwt', async(req,res)=>{
   const token = jwt.sign(user, process.env.TOKEN, {expiresIn: '1h'})
   res.cookie('token', token, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none'
+    secure: false,
+    // sameSite: 'none'
   })
   res.send({success: true})
 })
@@ -91,9 +89,6 @@ app.post('/api/v1/post-items', async(req,res)=>{
 
 app.get('/api/v1/get-added-food', async(req,res)=>{
   const email = req.query.email;
-  if(req.query.email !== req.user.email){
-    return res.status(403).send({message: 'forbidden access'})
-  }
 
   const cursor = await topSellingCollection.find({ Email: email }).toArray();
   res.send(cursor)
@@ -187,7 +182,12 @@ app.post('/api/v1/cart', async(req,res)=>{
 
 //get all cart items
 app.get('/api/v1/cart', async(req,res)=>{
-  const cursor = await cartCollection.find().toArray()
+  console.log(req.query.buyerEmail);
+  let query = {};
+            if (req.query?.buyerEmail) {
+                query = { buyerEmail: req.query.buyerEmail }
+            }
+  const cursor = await cartCollection.find(query).toArray()
   res.send(cursor)
 })
 
